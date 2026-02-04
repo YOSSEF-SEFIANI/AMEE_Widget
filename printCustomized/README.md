@@ -419,7 +419,47 @@ Pour activer l'impression de diagrammes, il faut configurer le widget Print avec
 | `chartBackground` | `string` | Couleur de fond du diagramme |
 | `preserveChartRatio` | `boolean` | Conserver le ratio d'aspect |
 
-### Exemple d'Utilisation
+---
+
+## ⚠️ Résolution de Problèmes
+
+### Le sélecteur de chart ne s'affiche pas en recette
+
+**Symptôme** : Le widget fonctionne en local mais le sélecteur de chart (ChartWidgetSelector) ne s'affiche pas en environnement de recette.
+
+**Cause** : Les traductions pour les fonctionnalités chart sont manquantes dans les fichiers JavaScript compilés (`.js`).
+
+**Solution** : Les traductions suivantes doivent être présentes dans **tous** les fichiers de langue (`.js`) :
+
+```javascript
+selectChart: "Select a chart widget",
+includeChartInPrint: "Include chart in print",
+chartPosition: "Chart position",
+positionTop: "Top",
+positionBottom: "Bottom",
+positionLeft: "Left",
+positionRight: "Right",
+noChartWidgetAvailable: "No chart widget available in application",
+none: "None",
+chartSettings: "Chart settings"
+```
+
+**Emplacements** :
+
+- `src/setting/translations/*.js` (39 fichiers)
+- `src/runtime/translations/*.js` (39 fichiers)
+
+**Vérification** :
+
+```bash
+# Vérifier que les traductions sont présentes
+grep -l "chartSettings" src/setting/translations/*.js | wc -l  # Devrait retourner 38-39
+grep -l "chartSettings" src/runtime/translations/*.js | wc -l  # Devrait retourner 38-39
+```
+
+---
+
+## 📊 Options d'Impression de Diagramme
 
 ```typescript
 // Dans le composant Print, récupération du diagramme
