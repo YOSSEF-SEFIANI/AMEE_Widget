@@ -53,7 +53,7 @@ import {
   createChartPrintElement,
   addChartToTemplate,
   printChartOnly,
-} from "../../utils/chart";
+} from "../../utils";
 const { useState, useRef, useEffect } = React;
 
 interface Props {

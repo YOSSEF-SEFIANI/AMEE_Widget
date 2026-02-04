@@ -43,7 +43,7 @@ import {
   listAvailableChartWidgets,
   isChartWidgetAvailable,
   type ChartCaptureResult,
-} from "./utils/chart";
+} from "./utils";
 const { useState, useRef, useEffect } = React;
 type PrintProps = AllWidgetProps<IMConfig>;
 
