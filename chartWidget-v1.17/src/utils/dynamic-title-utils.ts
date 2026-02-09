@@ -1,27 +1,27 @@
-import { React, type QueriableDataSource } from "jimu-core"
+import { React, type QueriableDataSource } from "jimu-core";
 
 /**
  * Interface pour un filtre parsé depuis une clause WHERE SQL
  */
 export interface ParsedFilter {
-  field: string
-  operator: string
-  value: string | number
-  displayValue?: string
+  field: string;
+  operator: string;
+  value: string | number;
+  displayValue?: string;
 }
 
 /**
  * Interface pour les options de génération de titre
  */
 export interface DynamicTitleOptions {
-  baseTitle: string
-  includeFilters?: boolean
-  filterPrefix?: string
-  filterSeparator?: string
-  maxFilters?: number
-  fieldAliases?: { [fieldName: string]: string }
-  titleTemplate?: string
-  titleFormat?: "simple" | "descriptif" | "complet" | "narratif"
+  baseTitle: string;
+  includeFilters?: boolean;
+  filterPrefix?: string;
+  filterSeparator?: string;
+  maxFilters?: number;
+  fieldAliases?: { [fieldName: string]: string };
+  titleTemplate?: string;
+  titleFormat?: "simple" | "descriptif" | "complet" | "narratif";
 }
 
 /**
@@ -33,13 +33,13 @@ export interface DynamicTitleOptions {
  */
 export function parseWhereClause(whereClause: string): ParsedFilter[] {
   if (!whereClause || whereClause === "1=1") {
-    return []
+    return [];
   }
 
-  const filters: ParsedFilter[] = []
+  const filters: ParsedFilter[] = [];
 
   // Nettoyer la clause
-  const cleanWhere = whereClause.trim()
+  const cleanWhere = whereClause.trim();
 
   // Pattern pour différents types de filtres SQL
   const patterns = [
@@ -126,13 +126,13 @@ export function parseWhereClause(whereClause: string): ParsedFilter[] {
       handler: (match: RegExpExecArray) => {
         const values = match[2]
           .split(",")
-          .map((v) => v.trim().replace(/'/g, ""))
+          .map((v) => v.trim().replace(/'/g, ""));
         return {
           field: match[1],
           operator: "IN",
           value: values.join(", "),
           displayValue: `dans [${values.join(", ")}]`,
-        }
+        };
       },
     },
     // field BETWEEN val1 AND val2
@@ -145,29 +145,29 @@ export function parseWhereClause(whereClause: string): ParsedFilter[] {
         displayValue: `entre ${match[2]} et ${match[3]}`,
       }),
     },
-  ]
+  ];
 
   // Appliquer chaque pattern
   for (const pattern of patterns) {
-    let match: RegExpExecArray | null
+    let match: RegExpExecArray | null;
     while ((match = pattern.regex.exec(cleanWhere)) !== null) {
       try {
-        const filter = pattern.handler(match)
+        const filter = pattern.handler(match);
         // Éviter les doublons (un filtre peut matcher plusieurs patterns)
         if (!filters.find((f) => f.field === filter.field)) {
-          filters.push(filter)
+          filters.push(filter);
         }
       } catch (error) {
         console.warn(
           `[parseWhereClause] Erreur lors du parsing du filtre:`,
           match,
           error,
-        )
+        );
       }
     }
   }
 
-  return filters
+  return filters;
 }
 
 /**
@@ -184,29 +184,29 @@ function buildFormattedTitle(
     fieldAliases = {},
     filterSeparator = ", ",
     maxFilters = 3,
-  } = options
+  } = options;
 
   // Si un template personnalisé est fourni
   if (titleTemplate) {
-    let result = titleTemplate
+    let result = titleTemplate;
 
     // Remplacer {baseTitle}
-    result = result.replace(/\{baseTitle\}/g, baseTitle)
+    result = result.replace(/\{baseTitle\}/g, baseTitle);
 
     // Remplacer {filters} par la liste des filtres
     const filterTexts = filters.slice(0, maxFilters).map((f) => {
-      const fieldName = fieldAliases[f.field] || f.field
-      return `${fieldName}: ${f.displayValue || f.value}`
-    })
-    result = result.replace(/\{filters\}/g, filterTexts.join(filterSeparator))
+      const fieldName = fieldAliases[f.field] || f.field;
+      return `${fieldName}: ${f.displayValue || f.value}`;
+    });
+    result = result.replace(/\{filters\}/g, filterTexts.join(filterSeparator));
 
     // Remplacer {field:nom_du_champ} par la valeur du filtre
     filters.forEach((filter) => {
-      const regex = new RegExp(`\\{field:${filter.field}\\}`, "g")
-      result = result.replace(regex, String(filter.value))
-    })
+      const regex = new RegExp(`\\{field:${filter.field}\\}`, "g");
+      result = result.replace(regex, String(filter.value));
+    });
 
-    return result
+    return result;
   }
 
   // Format prédéfini selon titleFormat
@@ -216,12 +216,12 @@ function buildFormattedTitle(
       const fields = filters
         .slice(0, maxFilters)
         .map((f) => fieldAliases[f.field] || f.field)
-        .join(", et par ")
+        .join(", et par ");
 
       if (fields) {
-        return `Répartition par ${fields}`
+        return `Répartition par ${fields}`;
       }
-      return baseTitle
+      return baseTitle;
     }
 
     case "complet": {
@@ -229,45 +229,45 @@ function buildFormattedTitle(
       const fields = filters
         .slice(0, maxFilters)
         .map((f) => fieldAliases[f.field] || f.field)
-        .join(", et par ")
+        .join(", et par ");
 
       const values = filters.slice(0, maxFilters).map((f) => {
-        const fieldName = fieldAliases[f.field] || f.field
-        return `${fieldName}: ${f.displayValue || f.value}`
-      })
+        const fieldName = fieldAliases[f.field] || f.field;
+        return `${fieldName}: ${f.displayValue || f.value}`;
+      });
 
       if (fields && values.length > 0) {
-        return `Répartition par ${fields} (${values.join(filterSeparator)})`
+        return `Répartition par ${fields} (${values.join(filterSeparator)})`;
       }
-      return baseTitle
+      return baseTitle;
     }
 
     case "narratif": {
       // Format : "Répartition par {field1} au niveau {value1} et par {field2} sélectionnée {value2}"
-      const parts: string[] = []
+      const parts: string[] = [];
 
       filters.slice(0, maxFilters).forEach((filter, index) => {
-        const fieldName = fieldAliases[filter.field] || filter.field
-        const value = filter.displayValue || filter.value
+        const fieldName = fieldAliases[filter.field] || filter.field;
+        const value = filter.displayValue || filter.value;
 
         if (index === 0) {
-          parts.push(`${fieldName} au niveau ${value}`)
+          parts.push(`${fieldName} au niveau ${value}`);
         } else {
-          parts.push(`${fieldName} sélectionnée ${value}`)
+          parts.push(`${fieldName} sélectionnée ${value}`);
         }
-      })
+      });
 
       if (parts.length > 0) {
-        return `Répartition par ${parts.join(" et par ")}`
+        return `Répartition par ${parts.join(" et par ")}`;
       }
-      return baseTitle
+      return baseTitle;
     }
 
     case "simple":
     // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
     default: {
       // Format simple : "Titre de base (Field1: Value1, Field2: Value2)"
-      return baseTitle
+      return baseTitle;
     }
   }
 }
@@ -301,69 +301,67 @@ export function generateDynamicTitle(
     fieldAliases = {},
     titleTemplate,
     titleFormat = "simple",
-  } = options
+  } = options;
 
-  let finalTitle = baseTitle
+  let finalTitle = baseTitle;
 
   if (!includeFilters || !dataSource) {
-    return finalTitle
+    return finalTitle;
   }
 
   try {
     // Récupérer la clause WHERE de la DataSource
-    const queryParams = dataSource.getCurrentQueryParams()
-    const whereClause = queryParams?.where
+    const queryParams = dataSource.getCurrentQueryParams();
+    const whereClause = queryParams?.where;
 
     if (!whereClause || whereClause === "1=1") {
-      return finalTitle
+      return finalTitle;
     }
 
     // Parser les filtres
-    const filters = parseWhereClause(whereClause)
+    const filters = parseWhereClause(whereClause);
 
     if (filters.length === 0) {
       // Fallback: si le parsing échoue mais qu'on a une clause WHERE
-      return `${finalTitle} (Filtré)`
+      return `${finalTitle} (Filtré)`;
     }
 
     // Utiliser le format personnalisé ou prédéfini
     if (titleFormat !== "simple" || titleTemplate) {
-      return buildFormattedTitle(baseTitle, filters, options)
+      return buildFormattedTitle(baseTitle, filters, options);
     }
 
     // Format simple (existant)
-    const displayedFilters = filters.slice(0, maxFilters)
+    const displayedFilters = filters.slice(0, maxFilters);
 
     // Construire la partie filtre du titre
     const filterParts = displayedFilters.map((filter) => {
-      const fieldName = fieldAliases[filter.field] || filter.field
-      const displayValue = filter.displayValue || filter.value
+      const fieldName = fieldAliases[filter.field] || filter.field;
+      const displayValue = filter.displayValue || filter.value;
 
       // Si l'opérateur est "=", on simplifie l'affichage
       if (filter.operator === "=") {
-        return `${fieldName}: ${displayValue}`
+        return `${fieldName}: ${displayValue}`;
       } else {
-        return `${fieldName} ${displayValue}`
+        return `${fieldName} ${displayValue}`;
       }
-    })
+    });
 
     // Ajouter une indication s'il y a plus de filtres que maxFilters
     if (filters.length > maxFilters) {
-      filterParts.push(`+${filters.length - maxFilters} autres`)
+      filterParts.push(`+${filters.length - maxFilters} autres`);
     }
 
     // Assembler le titre final
-    const filterText = filterParts.join(filterSeparator)
-    finalTitle = `${finalTitle} ${filterPrefix}(${filterText})`
-
-    console.log("✅ [generateDynamicTitle] Titre généré:", finalTitle)
+    const filterText = filterParts.join(filterSeparator);
+    finalTitle = `${finalTitle} ${filterPrefix}(${filterText})`;
   } catch (error) {
-    console.error("[generateDynamicTitle] Erreur:", error)
+    console.error("[generateDynamicTitle] Erreur:", error);
     // En cas d'erreur, retourner le titre de base avec indication générique
-    return `${finalTitle} (Filtré)`
+    return `${finalTitle} (Filtré)`;
   }
 
-  return finalTitle
+  return finalTitle;
 }
 
 /**
@@ -373,30 +371,30 @@ export function generateDynamicTitle(
  * @returns Map des noms de champs vers leurs alias
  */
 export function extractFieldAliases(dataSource: QueriableDataSource | null): {
-  [fieldName: string]: string
+  [fieldName: string]: string;
 } {
   if (!dataSource) {
-    return {}
+    return {};
   }
 
   try {
-    const schema = dataSource.getSchema()
+    const schema = dataSource.getSchema();
     if (!schema?.fields) {
-      return {}
+      return {};
     }
 
-    const aliases: { [fieldName: string]: string } = {}
+    const aliases: { [fieldName: string]: string } = {};
 
     Object.entries(schema.fields).forEach(([fieldName, fieldInfo]) => {
       if (fieldInfo.alias && fieldInfo.alias !== fieldName) {
-        aliases[fieldName] = fieldInfo.alias
+        aliases[fieldName] = fieldInfo.alias;
       }
-    })
+    });
 
-    return aliases
+    return aliases;
   } catch (error) {
-    console.warn("[extractFieldAliases] Erreur:", error)
-    return {}
+    console.warn("[extractFieldAliases] Erreur:", error);
+    return {};
   }
 }
 
@@ -409,16 +407,16 @@ export function useDynamicTitle(
   baseTitle: string,
   queryVersion?: number, // Pour forcer la mise à jour
 ): string {
-  const [title, setTitle] = React.useState(baseTitle)
+  const [title, setTitle] = React.useState(baseTitle);
 
   React.useEffect(() => {
     if (!dataSource) {
-      setTitle(baseTitle)
-      return
+      setTitle(baseTitle);
+      return;
     }
 
     // Extraire les alias de champs automatiquement
-    const fieldAliases = extractFieldAliases(dataSource)
+    const fieldAliases = extractFieldAliases(dataSource);
 
     // Générer le titre dynamique
     const newTitle = generateDynamicTitle(dataSource, {
@@ -427,12 +425,12 @@ export function useDynamicTitle(
       fieldAliases,
       maxFilters: 3,
       filterSeparator: ", ",
-    })
+    });
 
-    setTitle(newTitle)
-  }, [dataSource, baseTitle, queryVersion])
+    setTitle(newTitle);
+  }, [dataSource, baseTitle, queryVersion]);
 
-  return title
+  return title;
 }
 
 // Export pour utilisation en tant que module
@@ -441,4 +439,4 @@ export default {
   generateDynamicTitle,
   extractFieldAliases,
   useDynamicTitle,
-}
+};

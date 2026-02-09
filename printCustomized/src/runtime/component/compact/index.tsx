@@ -249,7 +249,6 @@ const CompactPrint = (props: Props) => {
   const togglePreviewLayer = (visible: boolean) => {
     // Vérifier que jimuMapView existe avant d'accéder à ses propriétés
     if (!jimuMapView) {
-      console.warn("togglePreviewLayer: jimuMapView is null");
       return;
     }
     const layerId = getPreviewLayerId(id, jimuMapView.id);
@@ -267,9 +266,6 @@ const CompactPrint = (props: Props) => {
       chartPrintOptions?.chartWidgetId;
 
     if (!hasMap && !hasChartConfig) {
-      console.error(
-        "confirmPrint: Cannot print - no map and no chart configured.",
-      );
       const printResult = {
         resultId: selectedTemplate?.templateId,
         url: null,
@@ -313,12 +309,10 @@ const CompactPrint = (props: Props) => {
           printResult.state = PrintResultState.Success;
           setPrintResult(Immutable(printResult));
         } else {
-          console.error("Chart element could not be captured");
           printResult.state = PrintResultState.Error;
           setPrintResult(Immutable(printResult));
         }
       } catch (error) {
-        console.error("Error printing chart:", error);
         printResult.state = PrintResultState.Error;
         setPrintResult(Immutable(printResult));
       }
@@ -426,7 +420,6 @@ const CompactPrint = (props: Props) => {
             className="print-button text-truncate ml-1"
             type="primary"
             onClick={() => {
-              console.log("Print button clicked!");
               confirmPrint();
             }}
             title={nls("_widgetLabel")}

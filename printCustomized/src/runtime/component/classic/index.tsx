@@ -281,7 +281,6 @@ const Classic = (props: Props) => {
   const togglePreviewLayer = (visible: boolean) => {
     // Vérifier que jimuMapView existe avant d'accéder à ses propriétés
     if (!jimuMapView) {
-      console.warn("togglePreviewLayer: jimuMapView is null");
       return;
     }
     const layerId = getPreviewLayerId(id, jimuMapView.id);
@@ -302,9 +301,6 @@ const Classic = (props: Props) => {
 
     // Vérifier qu'on a au moins une source d'impression
     if (!hasMap && !hasChartConfig) {
-      console.error(
-        "confirmPrint: Cannot print - no map and no chart configured.",
-      );
       return;
     }
 
@@ -341,7 +337,6 @@ const Classic = (props: Props) => {
           await printChartOnly(chartElement, resultItem.title);
           setNewPrintResultList(resultItem, PrintResultState.Success);
         } else {
-          console.error("Chart element could not be captured");
           setNewPrintResultList(resultItem, PrintResultState.Error);
         }
       } catch (error) {

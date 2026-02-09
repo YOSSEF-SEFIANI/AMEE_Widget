@@ -160,5 +160,10 @@
         "width": 1
       }
     }
-  ]
+  ],
+  "dualAxisConfig": {
+    "enabled": false,
+    "seriesIndexes": [],
+    "position": "right"
+  }
 }

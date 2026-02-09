@@ -106,12 +106,6 @@ const Widget = (props: PrintProps) => {
     const userSelectedNone =
       Array.isArray(useMapWidgetIds) && useMapWidgetIds.length === 0;
 
-    console.log("DEBUG resolvedUseMapWidgetIds:", {
-      useMapWidgetIds,
-      fallbackMapWidgetId,
-      userSelectedNone,
-    });
-
     if (useMapWidgetIds?.length > 0) {
       return useMapWidgetIds;
     }
@@ -211,7 +205,7 @@ const Widget = (props: PrintProps) => {
     if (config?.useChartWidgetIds?.length > 0) {
       config.useChartWidgetIds.forEach((chartId: string) => {
         if (!isChartWidgetAvailable(chartId)) {
-          console.warn(`Widget Chart configuré non disponible: ${chartId}`);
+          // Chart non disponible
         }
       });
     }
@@ -260,7 +254,6 @@ const Widget = (props: PrintProps) => {
   };
 
   const handleActiveViewChange = (jimuMapView: JimuMapView): void => {
-    console.log("DEBUG handleActiveViewChange called:", jimuMapView);
     // Async errors
     if (!jimuMapView) {
       setErrorTip(nls("chooseMapTip"));
@@ -269,7 +262,6 @@ const Widget = (props: PrintProps) => {
     }
 
     if (jimuMapView.view.type !== "2d") {
-      console.log("DEBUG: View is not 2D, type:", jimuMapView.view.type);
       setErrorTip(nls("chooseMapTip"));
       setJimuMapView(null);
       return; // skip 2D
@@ -279,7 +271,6 @@ const Widget = (props: PrintProps) => {
       setErrorTip(nls("printPlaceholder"));
     }
 
-    console.log("DEBUG: Setting jimuMapView to:", jimuMapView);
     setJimuMapView(jimuMapView); // 2d
   };
 

@@ -168,7 +168,15 @@ export default {
   numberFieldByCategoryFieldBySplitByField:
     "{numberField} by {categoryField} by {splitByField}",
   xFieldAndyField: "{xField} and {yField}",
-  distributionOfNumberField: "Distribution of {numberField}",
+  distributionOfNumberField: "Distribution of {numberField}", // Dual Axis (Double échelle)
+  dualAxis: "Dual Y-Axis",
+  dualAxisTip: "Enable dual Y-axis to display series with different scales",
+  secondaryAxisSeries: "Secondary axis series",
+  secondaryAxisPosition: "Secondary axis position",
+  dualAxisNote: "{count} series assigned to secondary axis",
+  left: "Left",
+  right: "Right",
+  axes: "Axes",
   useLayerColor: "Use color from layer",
   parseNumericCategory: "Parse numeric category",
   parseTimeCategory: "Parse time category",

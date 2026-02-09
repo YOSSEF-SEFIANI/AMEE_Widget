@@ -11,6 +11,7 @@ import {
   type IMState,
   type DataSource,
   type DataRecord,
+  type QueriableDataSource,
 } from "jimu-core";
 import {
   DataActionList,
@@ -80,7 +81,7 @@ const Tools = (props: ToolsProps): React.ReactElement => {
   const widgetLabel =
     getAppStore().getState().appConfig.widgets?.[widgetId]?.label ?? "Chart";
   const dataActionLabel = translate("outputStatistics", { name: widgetLabel });
-  const { outputDataSource, chart, records } = useChartRuntimeState();
+  const { outputDataSource, chart, records, dataSource } = useChartRuntimeState();
   const cursorEnable = tools?.cursorEnable ?? true;
 
   const dividerVisible =
@@ -90,22 +91,95 @@ const Tools = (props: ToolsProps): React.ReactElement => {
     (state: IMState) =>
       state?.dataSourcesInfo[outputDataSource?.id]?.selectedIds,
   );
+
+  // ===== Récupérer les records depuis la DataSource principale si nécessaire =====
+  const [sourceRecords, setSourceRecords] = React.useState<DataRecord[]>([]);
+  
+  React.useEffect(() => {
+    // Si on a déjà des records du chart, pas besoin de requêter
+    if (records && records.length > 0) {
+      setSourceRecords([]);
+      return;
+    }
+    
+    // Si pas de dataSource principale, on ne peut rien faire
+    if (!dataSource) {
+      return;
+    }
+    
+    // Récupérer les records depuis la source principale
+    const fetchRecords = async () => {
+      try {
+        const ds = dataSource as QueriableDataSource;
+        if (ds && typeof ds.query === 'function') {
+          const result = await ds.query({
+            returnGeometry: false,
+            pageSize: ds.getMaxRecordCount?.() || 1000,
+          });
+          if (result?.records && result.records.length > 0) {
+            setSourceRecords(result.records);
+          }
+        } else {
+          // Essayer getRecords pour les DataSources non-queriables
+          const existingRecords = dataSource.getRecords?.();
+          if (existingRecords && existingRecords.length > 0) {
+            setSourceRecords(existingRecords);
+          }
+        }
+      } catch (error) {
+        console.warn("⚠️ [Tools] Could not fetch records from dataSource:", error);
+      }
+    };
+    
+    fetchRecords();
+  }, [dataSource, records]);
+
+  // ===== DEBUG: Analyse des DataActions =====
+
   const actionDataSets: DataRecordSet[] = React.useMemo(() => {
-    const records = outputDataSource?.getSelectedRecords();
-    const fields = getDataSourceFields(outputDataSource);
-    return outputDataSource
-      ? [
-          {
-            name: dataActionLabel,
-            type: "selected",
-            dataSource: outputDataSource,
-            records,
-            fields,
-          },
-        ]
-      : [];
+    const selectedRecords = outputDataSource?.getSelectedRecords();
+    const dsRecords = outputDataSource?.getRecords();
+    const outputFields = getDataSourceFields(outputDataSource);
+    const mainFields = getDataSourceFields(dataSource);
+    
+    // Priorité: records du state > chartRecords props > sourceRecords (fetched) > dsRecords
+    const stateRecords = records || chartRecords;
+    const allRecords = stateRecords?.length > 0 
+      ? stateRecords 
+      : (sourceRecords?.length > 0 ? sourceRecords : dsRecords);
+    
+    // Si pas de records sélectionnés, utiliser tous les records
+    const recordsToUse = selectedRecords?.length > 0 ? selectedRecords : allRecords;
+    
+    // Déterminer quelle dataSource utiliser pour les DataActions
+    // Si on utilise des records fetchés depuis la main dataSource, on doit utiliser cette dataSource
+    const useMainDataSource = sourceRecords?.length > 0 && (!stateRecords || stateRecords.length === 0);
+    const dataSourceForActions = useMainDataSource && dataSource ? dataSource : outputDataSource;
+    const fieldsForActions = useMainDataSource ? mainFields : outputFields;
+    
+    if (!dataSourceForActions) {
+      console.log("⚠️ [Tools] No dataSource available - returning empty array");
+      return [];
+    }
+    
+    if (!recordsToUse || recordsToUse.length === 0) {
+      console.log("⚠️ [Tools] No records available - DataActions will show 'No action available'");
+    } else {
+      console.log("✅ [Tools] Records available for DataActions:", recordsToUse.length);
+    }
+    
+    const result: DataRecordSet[] = [
+      {
+        name: dataActionLabel,
+        type: selectedRecords?.length > 0 ? "selected" : "loaded",
+        dataSource: dataSourceForActions,
+        records: recordsToUse || [],
+        fields: fieldsForActions,
+      },
+    ];
+    return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataActionLabel, outputDataSource, selectedIds]);
+  }, [dataActionLabel, outputDataSource, dataSource, selectedIds, records, chartRecords, sourceRecords]);
 
   const handleRangeModeChange = (mode: RangeCursorModeValue) => {
     if (!chart) return;
@@ -145,7 +219,6 @@ const Tools = (props: ToolsProps): React.ReactElement => {
   // Get series from webChart configuration (not from chart instance)
   const series = React.useMemo(() => {
     if (!webChartSeries) {
-      console.log("Tools - webChartSeries is null/undefined");
       return [];
     }
     // Convert to array if it's an Immutable object
@@ -154,11 +227,6 @@ const Tools = (props: ToolsProps): React.ReactElement => {
       : webChartSeries.toArray
         ? webChartSeries.toArray()
         : [];
-    console.log(
-      "Tools - Séries récupérées depuis webChart:",
-      seriesArray.length,
-      seriesArray,
-    );
     return seriesArray;
   }, [webChartSeries]);
 

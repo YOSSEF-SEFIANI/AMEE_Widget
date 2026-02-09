@@ -15,7 +15,7 @@ import {
   dataSourceUtils,
 } from "jimu-core";
 import { builderActions, type AllWidgetSettingProps } from "jimu-for-builder";
-import { defaultMessages as jimUiMessages } from "jimu-ui";
+import { defaultMessages as jimUiMessages, CollapsablePanel } from "jimu-ui";
 import { Switch, NumericInput, TextInput, Select, Option } from "jimu-ui";
 import {
   SettingRow,
@@ -197,6 +197,8 @@ const Setting = (props: SettingProps): React.ReactElement => {
   // ============================================================================
   // GESTION DU TITRE DYNAMIQUE
   // ============================================================================
+  const [isDynamicTitleOpen, setIsDynamicTitleOpen] = React.useState(false);
+
   const dynamicTitleConfig =
     propConfig.dynamicTitleConfig ||
     Immutable({
@@ -237,198 +239,210 @@ const Setting = (props: SettingProps): React.ReactElement => {
         </div>
 
         {/* ======================================================================
-            SECTION TITRE DYNAMIQUE
+            SECTION TITRE DYNAMIQUE (Collapsable)
         ====================================================================== */}
-        <SettingSection
-          title={translate("dynamicTitle", "Titre Dynamique")}
-          className="pt-3"
-        >
-          <div
-            style={{
-              padding: "12px",
-              backgroundColor: "#f0f7ff",
-              borderRadius: "4px",
-              marginBottom: "12px",
-            }}
+        <SettingSection className="pt-3">
+          <CollapsablePanel
+            label={translate("dynamicTitle", "Titre Dynamique")}
+            aria-label={translate("dynamicTitle", "Titre Dynamique")}
+            isOpen={isDynamicTitleOpen}
+            onRequestOpen={() => setIsDynamicTitleOpen(true)}
+            onRequestClose={() => setIsDynamicTitleOpen(false)}
           >
-            <p style={{ margin: "0 0 8px 0", fontSize: "12px", color: "#666" }}>
-              {translate(
-                "dynamicTitleDescription",
-                "Génère automatiquement des titres basés sur les filtres appliqués",
-              )}
-            </p>
-          </div>
-
-          <SettingRow>
-            <div className="d-flex justify-content-between w-100 align-items-center">
-              <label
-                className="w-75"
-                style={{ fontSize: "13px", fontWeight: 500 }}
+            <div
+              style={{
+                padding: "12px",
+                backgroundColor: "#f0f7ff",
+                borderRadius: "4px",
+                marginBottom: "12px",
+                marginTop: "12px",
+              }}
+            >
+              <p
+                style={{ margin: "0 0 8px 0", fontSize: "12px", color: "#666" }}
               >
-                {translate("enableDynamicTitle", "Activer")}
-              </label>
-              <Switch
-                checked={Boolean(dynamicTitleConfig.enabled ?? true)}
-                onChange={(evt) => {
-                  handleDynamicTitleChange("enabled", evt.target.checked);
-                }}
-              />
+                {translate(
+                  "dynamicTitleDescription",
+                  "Génère automatiquement des titres basés sur les filtres appliqués",
+                )}
+              </p>
             </div>
-          </SettingRow>
 
-          {dynamicTitleConfig.enabled && (
-            <>
-              <SettingRow>
-                <div className="d-flex justify-content-between w-100 align-items-center">
-                  <label
-                    className="w-75"
-                    style={{ fontSize: "13px", fontWeight: 500 }}
-                  >
-                    {translate("showFiltersInTitle", "Afficher les filtres")}
-                  </label>
-                  <Switch
-                    checked={Boolean(dynamicTitleConfig.showFilters ?? true)}
-                    onChange={(evt: React.FormEvent<HTMLInputElement>) => {
-                      handleDynamicTitleChange(
-                        "showFilters",
-                        (evt.target as HTMLInputElement).checked,
-                      );
-                    }}
-                  />
-                </div>
-              </SettingRow>
-              {dynamicTitleConfig.showFilters && (
-                <>
-                  <SettingRow flow="wrap">
-                    <label
-                      className="w-100"
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        marginBottom: "6px",
-                        display: "block",
-                      }}
-                    >
-                      {translate("titleFormat", "Format du titre")}
-                    </label>
-                    <Select
-                      style={{ width: "100%", fontSize: "13px" }}
-                      value={String(
-                        dynamicTitleConfig.titleFormat || "narratif",
-                      )}
-                      onChange={(evt: React.FormEvent<HTMLSelectElement>) => {
-                        handleDynamicTitleChange(
-                          "titleFormat",
-                          (evt.target as HTMLSelectElement).value,
-                        );
-                      }}
-                    >
-                      <Option value="simple">
-                        {translate("formatSimple", "Simple")}
-                      </Option>
-                      <Option value="descriptif">
-                        {translate("formatDescriptif", "Descriptif")}
-                      </Option>
-                      <Option value="complet">
-                        {translate("formatComplet", "Complet")}
-                      </Option>
-                      <Option value="narratif">
-                        {translate("formatNarratif", "Narratif")}
-                      </Option>
-                    </Select>
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        color: "#666",
-                        marginTop: "4px",
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {dynamicTitleConfig.titleFormat === "simple" &&
-                        "Ex: Total (Type: Value)"}
-                      {dynamicTitleConfig.titleFormat === "descriptif" &&
-                        "Ex: Répartition par Type, et par Année"}
-                      {dynamicTitleConfig.titleFormat === "complet" &&
-                        "Ex: Répartition par Type (Type: Value)"}
-                      {dynamicTitleConfig.titleFormat === "narratif" &&
-                        "Ex: Répartition par Type au niveau Value"}
-                    </div>
-                  </SettingRow>
+            <SettingRow>
+              <div className="d-flex justify-content-between w-100 align-items-center">
+                <label
+                  className="w-75"
+                  style={{ fontSize: "13px", fontWeight: 500 }}
+                >
+                  {translate("enableDynamicTitle", "Activer")}
+                </label>
+                <Switch
+                  checked={Boolean(dynamicTitleConfig.enabled ?? true)}
+                  onChange={(evt) => {
+                    handleDynamicTitleChange("enabled", evt.target.checked);
+                  }}
+                />
+              </div>
+            </SettingRow>
 
-                  <SettingRow flow="wrap">
+            {dynamicTitleConfig.enabled && (
+              <>
+                <SettingRow>
+                  <div className="d-flex justify-content-between w-100 align-items-center">
                     <label
-                      className="w-100"
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        marginBottom: "6px",
-                        display: "block",
-                      }}
+                      className="w-75"
+                      style={{ fontSize: "13px", fontWeight: 500 }}
                     >
-                      {translate("maxFilters", "Filtres affichés (max)")}
+                      {translate("showFiltersInTitle", "Afficher les filtres")}
                     </label>
-                    <NumericInput
-                      style={{ width: "100%" }}
-                      value={Number(dynamicTitleConfig.maxFilters ?? 2)}
-                      min={1}
-                      max={5}
-                      onChange={(value: number | undefined) => {
-                        handleDynamicTitleChange("maxFilters", value || 2);
-                      }}
-                      showHandlers
-                    />
-                  </SettingRow>
-
-                  <SettingRow flow="wrap">
-                    <label
-                      className="w-100"
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        marginBottom: "6px",
-                        display: "block",
-                      }}
-                    >
-                      {translate("filterSeparator", "Séparateur")}
-                    </label>
-                    <TextInput
-                      style={{ width: "100%", fontSize: "13px" }}
-                      value={String(dynamicTitleConfig.filterSeparator ?? ", ")}
+                    <Switch
+                      checked={Boolean(dynamicTitleConfig.showFilters ?? true)}
                       onChange={(evt: React.FormEvent<HTMLInputElement>) => {
                         handleDynamicTitleChange(
-                          "filterSeparator",
-                          (evt.target as HTMLInputElement).value,
+                          "showFilters",
+                          (evt.target as HTMLInputElement).checked,
                         );
                       }}
-                      placeholder="Ex: , ou / ou -"
                     />
-                  </SettingRow>
-
-                  <SettingRow>
-                    <div className="d-flex justify-content-between w-100 align-items-center">
+                  </div>
+                </SettingRow>
+                {dynamicTitleConfig.showFilters && (
+                  <>
+                    <SettingRow flow="wrap">
                       <label
-                        className="w-75"
-                        style={{ fontSize: "13px", fontWeight: 500 }}
+                        className="w-100"
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          marginBottom: "6px",
+                          display: "block",
+                        }}
                       >
-                        {translate("useShortAliases", "Alias courts")}
+                        {translate("titleFormat", "Format du titre")}
                       </label>
-                      <Switch
-                        checked={Boolean(
-                          dynamicTitleConfig.useShortAliases ?? true,
+                      <Select
+                        style={{ width: "100%", fontSize: "13px" }}
+                        value={String(
+                          dynamicTitleConfig.titleFormat || "narratif",
+                        )}
+                        onChange={(evt: React.FormEvent<HTMLSelectElement>) => {
+                          handleDynamicTitleChange(
+                            "titleFormat",
+                            (evt.target as HTMLSelectElement).value,
+                          );
+                        }}
+                      >
+                        <Option value="simple">
+                          {translate("formatSimple", "Simple")}
+                        </Option>
+                        <Option value="descriptif">
+                          {translate("formatDescriptif", "Descriptif")}
+                        </Option>
+                        <Option value="complet">
+                          {translate("formatComplet", "Complet")}
+                        </Option>
+                        <Option value="narratif">
+                          {translate("formatNarratif", "Narratif")}
+                        </Option>
+                      </Select>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "#666",
+                          marginTop: "4px",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {dynamicTitleConfig.titleFormat === "simple" &&
+                          "Ex: Total (Type: Value)"}
+                        {dynamicTitleConfig.titleFormat === "descriptif" &&
+                          "Ex: Répartition par Type, et par Année"}
+                        {dynamicTitleConfig.titleFormat === "complet" &&
+                          "Ex: Répartition par Type (Type: Value)"}
+                        {dynamicTitleConfig.titleFormat === "narratif" &&
+                          "Ex: Répartition par Type au niveau Value"}
+                      </div>
+                    </SettingRow>
+
+                    <SettingRow flow="wrap">
+                      <label
+                        className="w-100"
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          marginBottom: "6px",
+                          display: "block",
+                        }}
+                      >
+                        {translate("maxFilters", "Filtres affichés (max)")}
+                      </label>
+                      <NumericInput
+                        style={{ width: "100%" }}
+                        value={Number(dynamicTitleConfig.maxFilters ?? 2)}
+                        min={1}
+                        max={5}
+                        onChange={(value: number | undefined) => {
+                          handleDynamicTitleChange("maxFilters", value || 2);
+                        }}
+                        showHandlers
+                      />
+                    </SettingRow>
+
+                    <SettingRow flow="wrap">
+                      <label
+                        className="w-100"
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          marginBottom: "6px",
+                          display: "block",
+                        }}
+                      >
+                        {translate("filterSeparator", "Séparateur")}
+                      </label>
+                      <TextInput
+                        style={{ width: "100%", fontSize: "13px" }}
+                        value={String(
+                          dynamicTitleConfig.filterSeparator ?? ", ",
                         )}
                         onChange={(evt: React.FormEvent<HTMLInputElement>) => {
                           handleDynamicTitleChange(
-                            "useShortAliases",
-                            (evt.target as HTMLInputElement).checked,
+                            "filterSeparator",
+                            (evt.target as HTMLInputElement).value,
                           );
                         }}
+                        placeholder="Ex: , ou / ou -"
                       />
-                    </div>
-                  </SettingRow>
-                </>
-              )}
-            </>
-          )}
+                    </SettingRow>
+
+                    <SettingRow>
+                      <div className="d-flex justify-content-between w-100 align-items-center">
+                        <label
+                          className="w-75"
+                          style={{ fontSize: "13px", fontWeight: 500 }}
+                        >
+                          {translate("useShortAliases", "Alias courts")}
+                        </label>
+                        <Switch
+                          checked={Boolean(
+                            dynamicTitleConfig.useShortAliases ?? true,
+                          )}
+                          onChange={(
+                            evt: React.FormEvent<HTMLInputElement>,
+                          ) => {
+                            handleDynamicTitleChange(
+                              "useShortAliases",
+                              (evt.target as HTMLInputElement).checked,
+                            );
+                          }}
+                        />
+                      </div>
+                    </SettingRow>
+                  </>
+                )}
+              </>
+            )}
+          </CollapsablePanel>
         </SettingSection>
 
         <ChartSettings

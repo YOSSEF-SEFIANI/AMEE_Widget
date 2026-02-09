@@ -518,7 +518,6 @@ export async function initTemplateProperties (params: InitTemplatePropertiesPara
 
     return Promise.resolve(templateProperties)
   } catch (err) {
-    console.error(err)
     removeTemporarilyAddedLayers(printTemplateProperties?.layoutOptions?.elementOverrides, printTemplateProperties?.reportOptions, mapView, widgetId, useMapWidgetIds, isSupportReport)
     return Promise.resolve(null)
   }

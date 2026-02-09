@@ -15,6 +15,8 @@ import type {
   WebChartPredefinedLabelsDataOrder,
 } from "jimu-ui/advanced/chart";
 
+export type { WebChartAxis };
+
 export type WebChartSeries = Omit<_WebChartSeries, "query"> & {
   query?: FeatureLayerQueryParams;
   //add for custom added split-by series, will be removed at runtime
@@ -68,6 +70,16 @@ export interface WebChartOrderOptions {
    */
   orderByFields?: string[];
 }
+export interface DualAxisConfig {
+  /** Activer le deuxième axe Y */
+  enabled?: boolean;
+  /** Index des séries liées au deuxième axe (ex: [1, 2]) */
+  seriesIndexes?: number[];
+  /** Configuration du deuxième axe */
+  secondaryAxis?: WebChartAxis;
+  /** Position du deuxième axe ('right' par défaut) */
+  position?: "left" | "right";
+}
 
 export interface IWebChart extends Omit<WebChart, "background" | "series"> {
   dataSource: ChartDataSource;
@@ -77,6 +89,8 @@ export interface IWebChart extends Omit<WebChart, "background" | "series"> {
   customColors?: string[];
   /** Configuration avancée des couleurs */
   colorSettings?: ColorSettings;
+  /** Configuration de la double échelle */
+  dualAxisConfig?: DualAxisConfig;
 }
 
 export enum CategoryType {

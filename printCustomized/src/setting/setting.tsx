@@ -105,7 +105,7 @@ const Setting = (props: SettingProps) => {
         }
       }
     } catch (e) {
-      console.error("Erreur lors de la détection du widget Map:", e);
+      // Silent error
     }
     return null;
   }, [appConfig?.widgets]);

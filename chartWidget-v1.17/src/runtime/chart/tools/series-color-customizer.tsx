@@ -116,13 +116,6 @@ const SeriesColorCustomizer: React.FC<SeriesColorCustomizerProps> = (props) => {
     }
   `;
 
-  // Debug: afficher le nombre de séries
-  console.log(
-    "SeriesColorCustomizer - Nombre de séries:",
-    series?.length || 0,
-    series,
-  );
-
   // Pour les pie charts, extraire les slices
   const items = React.useMemo(() => {
     if (!series || series.length === 0) return [];
@@ -135,7 +128,6 @@ const SeriesColorCustomizer: React.FC<SeriesColorCustomizerProps> = (props) => {
         serie.slices &&
         serie.slices.length > 0
       ) {
-        console.log("Pie chart détecté avec", serie.slices.length, "slices");
         serie.slices.forEach((slice, sliceIndex) => {
           result.push({
             id: slice.sliceId || `slice-${serieIndex}-${sliceIndex}`,
@@ -159,7 +151,6 @@ const SeriesColorCustomizer: React.FC<SeriesColorCustomizerProps> = (props) => {
         });
       }
     });
-    console.log("Items à afficher:", result.length, result);
     return result;
   }, [series]);
 
@@ -206,14 +197,18 @@ const SeriesColorCustomizer: React.FC<SeriesColorCustomizerProps> = (props) => {
               <ThemeColorPicker
                 specificTheme={theme}
                 value={currentColor}
-                onChange={(color) => { handleColorChange(itemId, color) }}
+                onChange={(color) => {
+                  handleColorChange(itemId, color);
+                }}
               />
 
               {localColors[itemId] && (
                 <button
                   css={resetButtonStyle}
                   title="Réinitialiser"
-                  onClick={() => { handleResetColor(itemId) }}
+                  onClick={() => {
+                    handleResetColor(itemId);
+                  }}
                 >
                   ↺
                 </button>

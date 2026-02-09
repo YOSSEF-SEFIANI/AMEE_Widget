@@ -1,12 +1,12 @@
-import { React, ReactRedux, type IMState } from 'jimu-core'
-import { isSerialSeries } from '../../../../utils/default'
-import SerialSetting, { type SerialSettingProps } from './serial'
-import PieSetting from './pie'
-import ScatterPlotSetting from './scatter'
-import HistogramSetting from './histogram'
-import GaugeSetting from './gauge'
+import { React, ReactRedux, type IMState } from "jimu-core";
+import { isSerialSeries } from "../../../../utils/default";
+import SerialSetting, { type SerialSettingProps } from "./serial";
+import PieSetting from "./pie";
+import ScatterPlotSetting from "./scatter";
+import HistogramSetting from "./histogram";
+import GaugeSetting from "./gauge";
 interface WebChartSettingProps extends SerialSettingProps {
-  widgetId?: string
+  widgetId?: string;
 }
 
 const WebChartSetting = (props: WebChartSettingProps) => {
@@ -21,10 +21,13 @@ const WebChartSetting = (props: WebChartSettingProps) => {
     onSectionChange,
     onWebChartChange,
     onMessagesChange,
-    onOptionsChange
-  } = props
+    onOptionsChange,
+  } = props;
 
-  const colorMatchingApplied = ReactRedux.useSelector((state: IMState) => state.appStateInBuilder.widgetsState?.[widgetId]?.colorMatchingApplied)
+  const colorMatchingApplied = ReactRedux.useSelector(
+    (state: IMState) =>
+      state.appStateInBuilder.widgetsState?.[widgetId]?.colorMatchingApplied,
+  );
 
   return (
     <>
@@ -43,7 +46,7 @@ const WebChartSetting = (props: WebChartSettingProps) => {
           colorMatchingApplied={colorMatchingApplied}
         />
       )}
-      {type === 'pieSeries' && (
+      {type === "pieSeries" && (
         <PieSetting
           type={type}
           section={section}
@@ -56,7 +59,7 @@ const WebChartSetting = (props: WebChartSettingProps) => {
           colorMatchingApplied={colorMatchingApplied}
         />
       )}
-      {type === 'scatterSeries' && (
+      {type === "scatterSeries" && (
         <ScatterPlotSetting
           section={section}
           messages={messages}
@@ -68,7 +71,7 @@ const WebChartSetting = (props: WebChartSettingProps) => {
           colorMatchingApplied={colorMatchingApplied}
         />
       )}
-      {type === 'histogramSeries' && (
+      {type === "histogramSeries" && (
         <HistogramSetting
           section={section}
           messages={messages}
@@ -80,7 +83,7 @@ const WebChartSetting = (props: WebChartSettingProps) => {
           colorMatchingApplied={colorMatchingApplied}
         />
       )}
-      {type === 'gaugeSeries' && (
+      {type === "gaugeSeries" && (
         <GaugeSetting
           section={section}
           messages={messages}
@@ -92,7 +95,7 @@ const WebChartSetting = (props: WebChartSettingProps) => {
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default WebChartSetting
+export default WebChartSetting;

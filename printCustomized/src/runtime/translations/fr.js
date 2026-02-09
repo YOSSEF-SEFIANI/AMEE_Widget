@@ -42,17 +42,6 @@ System.register([], function (e) {
         includeNorthArrow:
           "Inclure la fl\xe8che d\u2019orientation vers le nord",
         resultsNumber: "R\xe9sultats\xa0{number}",
-        selectChart: "S\xe9lectionner un widget diagramme",
-        includeChartInPrint: "Inclure le diagramme dans l\u2019impression",
-        chartPosition: "Position du diagramme",
-        positionTop: "Haut",
-        positionBottom: "Bas",
-        positionLeft: "Gauche",
-        positionRight: "Droite",
-        noChartWidgetAvailable:
-          "Aucun widget diagramme disponible dans l\u2019application",
-        none: "Aucun",
-        chartSettings: "Param\xe8tres des diagrammes",
       });
     },
   };

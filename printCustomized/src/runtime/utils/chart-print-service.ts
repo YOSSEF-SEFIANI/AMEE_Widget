@@ -82,8 +82,8 @@ import { jsPDF } from "jspdf";
 // ============== PERFORMANCE OPTIMIZATIONS ==============
 
 // Configuration pour activer/désactiver les logs (activé pour débug)
-// Changer à: const DEBUG_MODE = process.env.NODE_ENV === 'development'; en production
-const DEBUG_MODE = true; // DEBUG: Activé temporairement
+// Configuration du mode debug - désactivé en production
+const DEBUG_MODE = false;
 const log = DEBUG_MODE
   ? console.log.bind(console, "[ChartPrintService]")
   : () => {};

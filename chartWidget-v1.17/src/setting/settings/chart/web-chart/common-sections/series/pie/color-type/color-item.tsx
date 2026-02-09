@@ -1,17 +1,25 @@
 /**@jsx jsx */
-import { React, jsx, css, classNames, type ImmutableObject, Immutable, hooks } from 'jimu-core'
-import { Button, defaultMessages } from 'jimu-ui'
-import { MinusCircleOutlined } from 'jimu-icons/outlined/editor/minus-circle'
-import type { WebChartPieChartSlice } from 'jimu-ui/advanced/chart'
-import { EditableText } from '../../../../components'
+import {
+  React,
+  jsx,
+  css,
+  classNames,
+  type ImmutableObject,
+  Immutable,
+  hooks,
+} from "jimu-core";
+import { Button, defaultMessages } from "jimu-ui";
+import { MinusCircleOutlined } from "jimu-icons/outlined/editor/minus-circle";
+import type { WebChartPieChartSlice } from "jimu-ui/advanced/chart";
+import { EditableText } from "../../../../components";
 
 interface ColorItemProps {
-  className?: string
-  editable?: boolean
-  value: ImmutableObject<WebChartPieChartSlice>
-  onChange?: (value: ImmutableObject<WebChartPieChartSlice>) => void
-  deletable?: boolean
-  onDelete?: (sliceId: string) => void
+  className?: string;
+  editable?: boolean;
+  value: ImmutableObject<WebChartPieChartSlice>;
+  onChange?: (value: ImmutableObject<WebChartPieChartSlice>) => void;
+  deletable?: boolean;
+  onDelete?: (sliceId: string) => void;
 }
 
 // Simple HTML color picker compatible with ExB 1.17
@@ -24,11 +32,11 @@ const SimpleColorPicker: React.FC<{
     width: 32px;
     height: 32px;
     padding: 0;
-    border: 1px solid #BDBDBD;
+    border: 1px solid #bdbdbd;
     border-radius: 4px;
     cursor: pointer;
     background: transparent;
-    
+
     &::-webkit-color-swatch-wrapper {
       padding: 2px;
     }
@@ -42,7 +50,7 @@ const SimpleColorPicker: React.FC<{
     <input
       type="color"
       css={colorInputStyle}
-      value={value && value.startsWith('#') ? value : '#5E8FD0'}
+      value={value && value.startsWith("#") ? value : "#5E8FD0"}
       onChange={(e) => onChange(e.target.value)}
       aria-label={ariaLabel}
     />
@@ -62,57 +70,78 @@ const style = css`
       max-width: 70%;
     }
   }
-`
-const defaultValue = Immutable({}) as ImmutableObject<WebChartPieChartSlice>
+`;
+const defaultValue = Immutable({}) as ImmutableObject<WebChartPieChartSlice>;
 export const ColorItem = (props: ColorItemProps): React.ReactElement => {
-  const { className, editable = true, value: propValue = defaultValue, onChange, deletable, onDelete } = props
-  const label = propValue.label ?? propValue.sliceId
-  const color = propValue.fillSymbol?.color as any
+  const {
+    className,
+    editable = true,
+    value: propValue = defaultValue,
+    onChange,
+    deletable,
+    onDelete,
+  } = props;
+  const label = propValue.label ?? propValue.sliceId;
+  const color = propValue.fillSymbol?.color as any;
 
-  console.log('ColorItem render:', label, color)
-
-  const translate = hooks.useTranslation(defaultMessages)
+  const translate = hooks.useTranslation(defaultMessages);
 
   const handleColorChange = (color: string) => {
-    console.log('ColorItem handleColorChange input:', color)
-    let currentSlice = propValue as any
+    let currentSlice = propValue as any;
     if (currentSlice.asMutable) {
-      currentSlice = currentSlice.asMutable({ deep: true })
+      currentSlice = currentSlice.asMutable({ deep: true });
     } else {
-      currentSlice = { ...currentSlice }
+      currentSlice = { ...currentSlice };
     }
 
     if (!currentSlice.fillSymbol) {
-      currentSlice.fillSymbol = {}
+      currentSlice.fillSymbol = {};
     } else {
-      currentSlice.fillSymbol = { ...currentSlice.fillSymbol }
+      currentSlice.fillSymbol = { ...currentSlice.fillSymbol };
     }
 
-    currentSlice.fillSymbol.color = color
+    currentSlice.fillSymbol.color = color;
 
-    const value = Immutable(currentSlice)
-    console.log('ColorItem handleColorChange output:', value)
-    onChange?.(value)
-  }
+    const value = Immutable(currentSlice);
+    onChange?.(value);
+  };
 
   const handleLabelChange = (label: string) => {
-    const value = Immutable(propValue).set('label', label)
-    onChange?.(value)
-  }
+    const value = Immutable(propValue).set("label", label);
+    onChange?.(value);
+  };
 
   const handleDeleteClick = () => {
-    onDelete?.(propValue.sliceId)
-  }
+    onDelete?.(propValue.sliceId);
+  };
 
   return (
-    <div css={style} className={classNames('color-item', className)}>
-      <div className='editor-text-color'>
-        <EditableText className='label text-truncate' editable={editable} value={label} onChange={handleLabelChange}></EditableText>
-        <SimpleColorPicker ariaLabel={label} value={color} onChange={handleColorChange} />
+    <div css={style} className={classNames("color-item", className)}>
+      <div className="editor-text-color">
+        <EditableText
+          className="label text-truncate"
+          editable={editable}
+          value={label}
+          onChange={handleLabelChange}
+        ></EditableText>
+        <SimpleColorPicker
+          ariaLabel={label}
+          value={color}
+          onChange={handleColorChange}
+        />
       </div>
-      {
-        deletable && <Button aria-label={translate('remove')} title={translate('remove')} type='tertiary' icon size='sm' onClick={handleDeleteClick}><MinusCircleOutlined size='m' /></Button>
-      }
+      {deletable && (
+        <Button
+          aria-label={translate("remove")}
+          title={translate("remove")}
+          type="tertiary"
+          icon
+          size="sm"
+          onClick={handleDeleteClick}
+        >
+          <MinusCircleOutlined size="m" />
+        </Button>
+      )}
     </div>
-  )
-}
+  );
+};
